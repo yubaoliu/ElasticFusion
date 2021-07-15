@@ -1,0 +1,35 @@
+version: '2.3'
+services:
+  elasticfusion:
+    image: yubaoliu/elasticfusion:cuda8
+    build:
+        context: .
+    # container_name: elasticfusion
+    runtime: nvidia
+    stdin_open: true
+    tty: true
+    # command: /bin/sh -c "terminator -H"
+    command: lxterminal
+    # command: roslaunch maskrcnn_ros action_server.launch
+    privileged: true
+    environment:
+        - UDEV=1
+        - DISPLAY
+        - QT_X11_NO_MITSHM=1
+    volumes:
+        - /tmp/.X11-unix:/tmp/.X11-unix:rw
+        - ..:/root/elasticfusion
+        - ${RESULT_DIR}:/root/results
+        - ${DATASET_DIR}:/root/Dataset
+        # - elasticfusion:/root
+    # cap_add:
+        # - SYS_PTRACE
+    # ports:
+        # - ${PORT}:8888
+    # entrypoint: /entrypoint.sh
+    devices:
+      - /dev:/dev
+    network_mode: host
+
+# volumes:
+#     elasticfusion:

@@ -1,0 +1,75 @@
+ARG CUDA_VERSION=10.2
+FROM nvidia/cudagl:$CUDA_VERSION-devel-ubuntu18.04
+LABEL maintainer "yubao <yubao.liu.ra@tut.jp>"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+   software-properties-common \
+   git \
+   cmake \
+   cmake-qt-gui \
+   libeigen3-dev \
+   libjpeg-dev \
+   libgl1-mesa-dev \
+   libglew-dev \
+   libsuitesparse-dev \
+   libudev-dev \
+   libxkbcommon-x11-dev \
+   openjdk-8-jdk \
+   freeglut3-dev \
+   zlib1g-dev \
+   libssl-dev \
+   libusb-1.0-0-dev \
+   pkg-config \
+   libgtk-3-dev \
+   libgl1-mesa-dev \
+   libglu1-mesa-dev \
+   && rm -rf /var/lib/apt/lists/*
+
+# Install Realsense
+RUN apt update \
+    && apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE \
+    && add-apt-repository -y "deb https://librealsense.intel.com/Debian/apt-repo $(lsb_release -cs) main" -u \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    librealsense2-dkms \
+    librealsense2-dev \
+    librealsense2-utils
+
+WORKDIR /root
+
+RUN git clone https://github.com/opencv/opencv.git -b 3.3.1 \
+    && cd opencv \
+    && mkdir build  \
+    && cd build  \
+    && cmake .. \
+    && make -j 3
+
+RUN git clone https://github.com/stevenlovegrove/Pangolin.git \
+   && cd Pangolin \
+   && mkdir build && cd build \
+   && cmake .. -DAVFORMAT_INCLUDE_DIR="" \
+   && cmake --build . \
+   && ldconfig
+
+RUN git clone https://github.com/occipital/OpenNI2.git \
+   && cd OpenNI2 \
+   && make -j3 \
+   && ldconfig
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xterm \
+    lxterminal \
+   #terminator \
+    vim \
+    tmux
+
+RUN git clone https://github.com/yubaoliu/dotfiles.git \
+    && cd dotfiles \
+    && cp .tmux.conf ~/.tmux.conf \
+    && cp .vimrc ~/.vimrc
+
+
+ENV OpenCV_DIR=/root/opencv/build
+ENV Pangolin_DIR=/root/Pangolin/build
+ENV OpenNI2_DIR=/root/OpenNI2
+
