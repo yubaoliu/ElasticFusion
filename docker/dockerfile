@@ -4,6 +4,7 @@ LABEL maintainer "yubao <yubao.liu.ra@tut.jp>"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
    software-properties-common \
+   sudo \
    git \
    cmake \
    cmake-qt-gui \
@@ -23,6 +24,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
    libgtk-3-dev \
    libgl1-mesa-dev \
    libglu1-mesa-dev \
+   libva-dev libjpeg-dev \
+   libturbojpeg libjpeg-turbo8-dev \
+   libturbojpeg0-dev \
+   cuda-samples-10-2 \
    && rm -rf /var/lib/apt/lists/*
 
 # Install Realsense
@@ -51,10 +56,10 @@ RUN git clone https://github.com/stevenlovegrove/Pangolin.git \
    && cmake --build . \
    && ldconfig
 
-RUN git clone https://github.com/occipital/OpenNI2.git \
-   && cd OpenNI2 \
-   && make -j3 \
-   && ldconfig
+#RUN git clone https://github.com/occipital/OpenNI2.git \
+#   && cd OpenNI2 \
+#   && make -j3 \
+#   && ldconfig
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xterm \
@@ -63,11 +68,41 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     vim \
     tmux
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libopenni2-dev \
+    openni2-utils 
+
+# kinect2, https://www.cnblogs.com/panandying/p/10656234.html
+RUN git clone https://github.com/OpenKinect/libfreenect2.git \
+    && cd libfreenect2 \
+    && mkdir build \
+    && cd build \
+    #&& cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/freenect2 \
+    && cmake .. \
+    && make \
+    && make install \
+    && make install-openni2 \
+    && cp ../platform/linux/udev/90-kinect2.rules /lib/udev/rules.d/  \
+    && ldconfig
+# test kinect2 using NiViewer2 
+
 RUN git clone https://github.com/yubaoliu/dotfiles.git \
     && cd dotfiles \
     && cp .tmux.conf ~/.tmux.conf \
     && cp .vimrc ~/.vimrc
 
+
+#RUN mkdir -p /etc/udev/rules.d/
+
+# realsense
+#RUN git clone https://github.com/IntelRealSense/librealsense.git \
+#    && cd librealsense \
+#    && ./scripts/setup_udev_rules.sh 
+#    && ./scripts/patch-realsense-ubuntu-lts.sh \
+#    && mkdir build && cd build \
+#    && cmake ../ -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=true \
+#    && make -j3 \
+#    && make install
 
 ENV OpenCV_DIR=/root/opencv/build
 ENV Pangolin_DIR=/root/Pangolin/build

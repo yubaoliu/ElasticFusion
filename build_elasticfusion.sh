@@ -21,4 +21,5 @@ mkdir build
 cd build
 cmake ../src
 make -j8
+
 ldconfig

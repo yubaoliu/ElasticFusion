@@ -1,3 +1,0 @@
-/root/elasticfusion/GPUTest/build/CMakeFiles/rebuild_cache.dir
-/root/elasticfusion/GPUTest/build/CMakeFiles/GPUTest.dir
-/root/elasticfusion/GPUTest/build/CMakeFiles/edit_cache.dir
